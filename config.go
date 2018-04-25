@@ -44,8 +44,12 @@ type Config interface {
 	// the configuration.
 	Exists(key string) bool
 
+	// Get returns the value of the specified property from the
+	// configuration.
 	Get(key string) string
 
+	// Set creates or modifies the specified property with the specified
+	// value.
 	Set(key, val string)
 }
 

@@ -3,7 +3,9 @@
 Go package providing a uniform interface to configuration, independent of how
 or where that configuration is defined.
 
-https://github.com/zadoo/flexconfig
+Git: https://github.com/zadoo/flexconfig
+
+API: https://godoc.org/github.com/zadoo/flexconfig
 
 ## Installation
 
