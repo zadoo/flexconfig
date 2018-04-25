@@ -10,7 +10,7 @@ https://github.com/zadoo/flexconfig
 Install:
 
 ```shell
-go get gopkg.in/yaml.v2 gopkg.in/ini.v1 github.com/zadoo/flexconfig
+go get github.com/zadoo/flexconfig
 ```
 
 Import:
