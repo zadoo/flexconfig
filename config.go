@@ -33,12 +33,12 @@ var (
 )
 
 var (
-	// The application name is either missing or uses characters outside
-	// those accepted as property names.
+	// ErrParmNameNotValid indicates the application name is either
+	// missing or uses characters outside those accepted as property names.
 	ErrParmNameNotValid = errors.New("Application name not valid")
 
-	// An environment prefix uses characters outside those accepted as
-	// property names.
+	// ErrParmEnvPrefixNotValid indicates an environment prefix uses
+	// characters outside those accepted as property names.
 	ErrParmEnvPrefixNotValid = errors.New("Environment variable prefix not valid")
 )
 
