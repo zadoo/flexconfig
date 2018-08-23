@@ -180,7 +180,7 @@ func (fcs *etcdStruct) Delete(key string) error {
 	return nil
 }
 
-// GetPrefix returns the "namespace" prefix specifed when the FlexConfigStore
+// GetPrefix returns the "namespace" prefix specified when the FlexConfigStore
 // was created by calling NewFlexConfigStore.
 func (fcs *etcdStruct) GetPrefix() string {
 	return fcs.prefix

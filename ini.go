@@ -38,7 +38,7 @@ func parseIniFile(vars map[string]string, prefix, content string) error {
 }
 
 // parseIni accepts a loaded ini structure and iterates through the sections
-// creating configruation properties from the definitions in each section.
+// creating configuration properties from the definitions in each section.
 func parseIni(vars map[string]string, prefix string, cfg *ini.File) error {
 	for _, sect := range cfg.SectionStrings() {
 		if sect == "DEFAULT" {

@@ -25,13 +25,23 @@ import (
 type FlexConfigStoreType int
 
 const (
+	// FlexConfigStoreUnknown is a value of FlexConfigStoreType
+	// indicating the type of configuration store is unknown.
 	FlexConfigStoreUnknown FlexConfigStoreType = iota
+
+	// FlexConfigStoreEtcd is a value of FlexConfigStoreType
+	// indicating the type of configuration store is etcd.
 	FlexConfigStoreEtcd
 )
 
 var (
+	// ErrStoreUnsupportedType indicates that the value of
+	// FlexConfigStoreType is not supported.
 	ErrStoreUnsupportedType = errors.New("Unsupported FlexConfigStoreType")
-	ErrStoreKeyRequired     = errors.New("Key is required")
+
+	// ErrStoreKeyRequired indicates that the requested function requires a
+	// property key as a parameter.
+	ErrStoreKeyRequired = errors.New("Key is required")
 )
 
 // FlexConfigStore describes the interface to a flexible configuration store.
@@ -53,7 +63,7 @@ type FlexConfigStore interface {
 	// Delete removes the specified property.
 	Delete(key string) error
 
-	// GetPrefix returns the "namespace" prefix specifed when the
+	// GetPrefix returns the "namespace" prefix specified when the
 	// FlexConfigStore was created by calling NewFlexConfigStore.
 	GetPrefix() string
 }

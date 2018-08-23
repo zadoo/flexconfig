@@ -31,6 +31,7 @@ import (
 func readConfigFiles(vars map[string]string, name string, suffixes []string, iniPrefix string) {
 	readFiles(vars, "/usr/local/etc/"+name, suffixes, iniPrefix)
 	readFiles(vars, "/opt/etc/"+name, suffixes, iniPrefix)
+	readFiles(vars, "/opt/"+name+"/etc", suffixes, iniPrefix)
 	readFiles(vars, "/etc/opt/"+name, suffixes, iniPrefix)
 	readFiles(vars, "/etc/"+name, suffixes, iniPrefix)
 

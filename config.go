@@ -33,7 +33,12 @@ var (
 )
 
 var (
-	ErrParmNameNotValid      = errors.New("Application name not valid")
+	// The application name is either missing or uses characters outside
+	// those accepted as property names.
+	ErrParmNameNotValid = errors.New("Application name not valid")
+
+	// An environment prefix uses characters outside those accepted as
+	// property names.
 	ErrParmEnvPrefixNotValid = errors.New("Environment variable prefix not valid")
 )
 
@@ -123,6 +128,8 @@ func GetConfiguration() Config {
 	return configuration
 }
 
+// NewFlexibleConfiguration initializes and returns a new Configuration. The
+// default Configuration is overwritten with this new Configuration.
 func NewFlexibleConfiguration(
 	parameters ConfigurationParameters) (Config, error) {
 	// Note: Creating a new FlexibleConfiguration will overwrite any

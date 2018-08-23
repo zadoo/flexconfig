@@ -3,9 +3,10 @@
 Go package providing a uniform interface to configuration, independent of how
 or where that configuration is defined.
 
-Git: https://github.com/zadoo/flexconfig
-
-API: https://godoc.org/github.com/zadoo/flexconfig
+[![API Reference](
+https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f676f6c616e672f6764646f3f7374617475732e737667
+)](https://godoc.org/github.com/zadoo/flexconfig)
+[![Go Report Card](https://goreportcard.com/badge/github.com/zadoo/flexconfig)](https://goreportcard.com/report/github.com/zadoo/flexconfig)
 
 ## Installation
 

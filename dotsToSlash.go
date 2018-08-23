@@ -37,7 +37,7 @@ func dotsToSlash(key string) string {
 }
 
 // slashToDots converts a key name using slashes to separate fields to the
-// cannonical key name using dots as field name separators.
+// canonical key name using dots as field name separators.
 func slashToDots(key string) string {
 	if len(key) == 0 {
 		return key
