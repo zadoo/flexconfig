@@ -28,7 +28,7 @@ const (
 	etcdTestPrefix                  = "/test"
 )
 
-func Test_etcd(t *testing.T) {
+func zTest_etcd(t *testing.T) {
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint
@@ -127,7 +127,7 @@ func Test_etcd(t *testing.T) {
 	}
 }
 
-func Test_etcd_prefix(t *testing.T) {
+func zTest_etcd_prefix(t *testing.T) {
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint
@@ -147,7 +147,7 @@ func Test_etcd_prefix(t *testing.T) {
 	}
 }
 
-func Test_etcd_badNames(t *testing.T) {
+func zTest_etcd_badNames(t *testing.T) {
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint
