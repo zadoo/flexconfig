@@ -19,7 +19,6 @@ limitations under the License.
 import (
 	"fmt"
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -241,15 +240,8 @@ func Test_config_onlyFiles(t *testing.T) {
 	}
 }
 
-func zTest_config_priority(t *testing.T) {
-	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
-	if len(endpointstr) == 0 {
-		endpointstr = defaultEtcdEndpoint
-	}
-
-	endpoints := strings.Split(endpointstr, ",")
-
-	fcs, err := NewFlexConfigStore(FlexConfigStoreEtcd, endpoints, etcdTestPrefix)
+func Test_config_priority(t *testing.T) {
+	fcs, err := NewFlexConfigStore(FlexConfigStoreEtcd, getEndpointList(), etcdTestPrefix)
 	if err != nil {
 		t.Errorf("Error creating store: %v", err)
 		return
@@ -273,11 +265,6 @@ func zTest_config_priority(t *testing.T) {
 	})
 	if err != nil {
 		t.Errorf("Error calling NewFlexibleConfiguration")
-	}
-
-	if c == nil {
-		t.Errorf("Initialized configuration should not be nil")
-		return
 	}
 
 	val := c.Get("test.conf.two")

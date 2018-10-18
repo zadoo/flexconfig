@@ -28,7 +28,7 @@ const (
 	etcdTestPrefix                  = "/test"
 )
 
-func zTest_etcd(t *testing.T) {
+func getEndpointList() []string {
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint
@@ -36,7 +36,11 @@ func zTest_etcd(t *testing.T) {
 
 	endpoints := strings.Split(endpointstr, ",")
 
-	fcs, err := newEtcdFlexConfigStore(endpoints, etcdTestPrefix)
+	return endpoints
+}
+
+func Test_etcd(t *testing.T) {
+	fcs, err := newEtcdFlexConfigStore(getEndpointList(), etcdTestPrefix)
 	if err != nil {
 		t.Errorf("Error creating store, have you defined ETCDCTL_ENDPOINTS?: %v", err)
 		return
@@ -63,6 +67,22 @@ func zTest_etcd(t *testing.T) {
 	if val != propval {
 		t.Errorf("Did not get back same value as set: %v", val)
 	}
+}
+
+func Test_etcd_properties(t *testing.T) {
+	fcs, err := newEtcdFlexConfigStore(getEndpointList(), etcdTestPrefix)
+	if err != nil {
+		t.Errorf("Error creating store: %v", err)
+		return
+	}
+
+	prop := "moo"
+	propval := "bar"
+
+	err = fcs.Set(prop, propval)
+	if err != nil {
+		t.Errorf("Error setting property: %v", err)
+	}
 
 	prop = "spiffy.lake"
 	propval = "123"
@@ -72,7 +92,7 @@ func zTest_etcd(t *testing.T) {
 		t.Errorf("Error setting property: %v", err)
 	}
 
-	val, err = fcs.Get(prop)
+	val, err := fcs.Get(prop)
 	if err != nil {
 		t.Errorf("Error getting property: %v", err)
 	}
@@ -116,18 +136,9 @@ func zTest_etcd(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error deleting property: %v", err)
 	}
-
-	val, err = fcs.Get(prop)
-	if err != nil {
-		t.Errorf("Error getting property: %v", err)
-	}
-
-	if val != "" {
-		t.Errorf("Expecting empty value but found: %v", val)
-	}
 }
 
-func zTest_etcd_prefix(t *testing.T) {
+func Test_etcd_prefix(t *testing.T) {
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint
@@ -147,7 +158,7 @@ func zTest_etcd_prefix(t *testing.T) {
 	}
 }
 
-func zTest_etcd_badNames(t *testing.T) {
+func Test_etcd_badNames(t *testing.T) {
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint

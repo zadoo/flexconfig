@@ -23,7 +23,7 @@ import (
 	"testing"
 )
 
-func zTest_flexConfigStoreNew(t *testing.T) {
+func Test_flexConfigStoreNew(t *testing.T) {
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint
