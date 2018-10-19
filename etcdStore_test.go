@@ -69,7 +69,7 @@ func Test_etcd(t *testing.T) {
 	}
 }
 
-func Test_etcd_properties(t *testing.T) {
+func Test_etcd_getAll(t *testing.T) {
 	fcs, err := newEtcdFlexConfigStore(getEndpointList(), etcdTestPrefix)
 	if err != nil {
 		t.Errorf("Error creating store: %v", err)
@@ -90,15 +90,6 @@ func Test_etcd_properties(t *testing.T) {
 	err = fcs.Set(prop, propval)
 	if err != nil {
 		t.Errorf("Error setting property: %v", err)
-	}
-
-	val, err := fcs.Get(prop)
-	if err != nil {
-		t.Errorf("Error getting property: %v", err)
-	}
-
-	if val != propval {
-		t.Errorf("Did not get back same value as set: %v", val)
 	}
 
 	list, err := fcs.GetAll()
@@ -123,7 +114,7 @@ func Test_etcd_properties(t *testing.T) {
 		t.Errorf("Error deleting property: %v", err)
 	}
 
-	val, err = fcs.Get("moo")
+	val, err := fcs.Get("moo")
 	if err != nil {
 		t.Errorf("Error getting property: %v", err)
 	}
