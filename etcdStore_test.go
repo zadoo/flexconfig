@@ -39,6 +39,28 @@ func getEndpointList() []string {
 	return endpoints
 }
 
+func Test_etcdStore_noEndpoints(t *testing.T) {
+	_, err := newEtcdFlexConfigStore([]string{}, etcdTestPrefix)
+	if err == nil {
+		t.Errorf("Unexpected success when specifying no endpoints")
+	}
+
+	if !strings.Contains(err.Error(), "No endpoints specified") {
+		t.Errorf("Unexpected error message: %v", err)
+	}
+}
+
+func Test_etcdStore_badEndpoints(t *testing.T) {
+	_, err := newEtcdFlexConfigStore([]string{"1.2.3.4"}, etcdTestPrefix)
+	if err == nil {
+		t.Errorf("Unexpected success when specifying bad endpoint")
+	}
+
+	if !strings.Contains(err.Error(), "No working endpoint found") {
+		t.Errorf("Unexpected error message: %v", err)
+	}
+}
+
 func Test_etcd(t *testing.T) {
 	fcs, err := newEtcdFlexConfigStore(getEndpointList(), etcdTestPrefix)
 	if err != nil {

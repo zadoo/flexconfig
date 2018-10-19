@@ -17,6 +17,8 @@ limitations under the License.
 */
 
 import (
+	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -54,6 +56,12 @@ func newEtcdFlexConfigStore(
 	endpoints []string,
 	prefix string) (FlexConfigStore, error) {
 	// Create the configuration for etcd
+
+	err := validateEndpoints(endpoints)
+	if err != nil {
+		return nil, err
+	}
+
 	etcdConfig := etcd.Config{
 		Endpoints: endpoints,
 		DialTimeout: time.Duration(etcdRequestTimeoutMs) *
@@ -82,6 +90,21 @@ func newEtcdFlexConfigStore(
 	fcs.prefix = prefix
 
 	return fcs, nil
+}
+
+func validateEndpoints(endpoints []string) error {
+	if len(endpoints) == 0 {
+		return fmt.Errorf("No endpoints specified")
+	}
+
+	for _, e := range endpoints {
+		_, err := http.Get(e)
+		if err == nil {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("No working endpoint found")
 }
 
 // Get returns a property value from etcd given its key. The received key is
