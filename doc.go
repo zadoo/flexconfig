@@ -56,10 +56,10 @@ it is possible to override the behavior of searching for configuration files
 and specify a single configuration
 file through the use of a special command line argument or a special
 environment variable. The command line argument
-_flexconfig.configuration.file.location_ specifies the file from which
+--flexconfig.configuration.file.location specifies the file from which
 to read the static configuration and stops the search for files in the standard
 configuration locations. The environment variable
-_FLEXCONFIG_CONFIGURATION_FILE_LOCATION_ can be used instead to specifyy
+FLEXCONFIG_CONFIGURATION_FILE_LOCATION can be used instead to specifyy
 the location of the single configuration file. If both the command line
 argument and the
 environment variable are set, the value of the command line argument
