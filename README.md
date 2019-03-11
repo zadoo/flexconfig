@@ -10,26 +10,31 @@ https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/6874
 
 ## Installation
 
-Install:
+Install the package using standard GO package retrieval:
 
 ```shell
 go get github.com/zadoo/flexconfig
 ```
 
-Import:
-
-```go
-import "github.com/zadoo/flexconfig"
-```
-
-Test:
+Test the installed package by changing directory to
+`$(go env GOPATH)/src/github.com/zadoo/flexconfig` and running the
+following command:
 
 ```shell
 ETCDCTL_ENDPOINTS=0.0.0.0:2379 go test
 ```
 
-Change 0.0.0.0 to the IP address of your ectd server, or expect 5 test failures
-if you do not intend to use an etcd configuration store.
+Change 0.0.0.0 to the IP address of your ectd server to test using
+a configuration store. Omit the environment variable to test without
+a configuration store.
+
+## Use
+
+In GO files that use configuration, add an import statement as follows:
+
+```go
+import "github.com/zadoo/flexconfig"
+```
 
 ## Quickstart
 
@@ -121,7 +126,7 @@ to create a new Config.
 
 ## Copyright
 
-Copyright (C) 2018 The flexconfig authors.
+Copyright (C) 2018-2019 The flexconfig authors.
 
 flexconfig package released under Apache 2.0 License.
 See [LICENSE](https://github.com/zadoo/flexconfig/blob/master/LICENSE) for details.

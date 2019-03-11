@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018 The flexconfig Authors
+Copyright 2018-2019 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,10 @@ limitations under the License.
 
 import (
 	"strings"
+)
+
+const (
+	allowedCharacters = "abcdefghijklmnopqrstuvwxyz.-_0123456789"
 )
 
 // readCommandLineArgs iterates through an array of strings representiing
@@ -53,11 +57,36 @@ func readCommandLineArgs(vars map[string]string, args []string) {
 	}
 }
 
+// searchArguments iterates through an array of strings representing command
+// line arguments to locate a value having the form --<argumentName>=<value>.
+// If a member is found matching the pattern, the value of that argument is
+// returned. If no member matches the pattern and empty string is returned.
+func searchArgument(args []string, argumentName string) string {
+	val := ""
+
+	if len(argumentName) == 0 {
+		return val
+	}
+
+	for _, a := range args {
+		if strings.HasPrefix(a, "--"+argumentName+"=") {
+			index := len(argumentName) + 3
+			if len(a) == index {
+				return val
+			}
+
+			return a[index:]
+		}
+	}
+
+	return val
+}
+
 // conformsToKey checks whether a given string conforms to the character set
 // allowed for property keys.
 func conformsToKey(arg string) bool {
 	for _, c := range []rune(arg) {
-		if strings.Index("abcdefghijklmnopqrstuvwxyz.-_0123456789", string(c)) < 0 {
+		if strings.Index(allowedCharacters, string(c)) < 0 {
 			return false
 		}
 	}

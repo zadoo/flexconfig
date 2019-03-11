@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018 The flexconfig Authors
+Copyright 2018-2019 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -457,5 +457,59 @@ func Test_config_newDifferentSuffix(t *testing.T) {
 	val := Get("test.conf.seven")
 	if val != "written by xyz" {
 		t.Errorf("Unexpected value: %s", val)
+	}
+}
+
+func Test_readConfig_specialArg(t *testing.T) {
+	os.Args = []string{"test", "--" + flexconfigCommandlineFileLocation + "=.testConfig/file.xyz"}
+	c, err := NewFlexibleConfiguration(ConfigurationParameters{
+		ApplicationName: "testConfig",
+	})
+	if err != nil {
+		t.Errorf("Error calling NewFlexibleConfiguration")
+	}
+
+	val := c.Get("test.conf.seven")
+	if val != "written by xyz" {
+		t.Errorf("Command line config location did not work")
+	}
+
+	val = c.Get("test.conf.one")
+	if val == "written by yaml" {
+		t.Errorf("Command line config did not override file reads")
+	}
+}
+
+func Test_readConfig_specialEnv(t *testing.T) {
+	os.Setenv(flexConfigEnvFileLocation, ".testConfig/file.xyz")
+	c, err := NewFlexibleConfiguration(ConfigurationParameters{})
+	if err != nil {
+		t.Errorf("Error calling NewFlexibleConfiguration")
+	}
+
+	val := c.Get("test.conf.seven")
+	if val != "written by xyz" {
+		t.Errorf("Environment single config location did not work")
+	}
+}
+
+func Test_readConfig_specialBoth(t *testing.T) {
+	os.Setenv(flexConfigEnvFileLocation, ".testConfig/yaml.conf")
+	os.Args = []string{"test", "--" + flexconfigCommandlineFileLocation + "=.testConfig/file.xyz"}
+	c, err := NewFlexibleConfiguration(ConfigurationParameters{
+		ApplicationName: "testConfig",
+	})
+	if err != nil {
+		t.Errorf("Error calling NewFlexibleConfiguration")
+	}
+
+	val := c.Get("test.conf.seven")
+	if val != "written by xyz" {
+		t.Errorf("Command line config location did not work")
+	}
+
+	val = c.Get("test.conf.one")
+	if val == "written by yaml" {
+		t.Errorf("Command line config did not override environment")
 	}
 }

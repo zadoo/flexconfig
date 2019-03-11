@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018 The flexconfig Authors
+Copyright 2018-2019 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import (
 )
 
 const (
-	defaultAppName             = ""
-	defaultConfigurationSuffix = ".conf"
+	defaultAppName                    = ""
+	defaultConfigurationSuffix        = ".conf"
+	flexconfigCommandlineFileLocation = "flexconfig.configuration.file.location"
+	flexConfigEnvFileLocation         = "FLEXCONFIG_CONFIGURATION_FILE_LOCATION"
 )
 
 var (
@@ -266,9 +268,34 @@ func (fc *flexibleConfiguration) readConfig(
 	// override a previous definition.
 
 	vars := make(map[string]string)
+	readFiles := true
+
+	// Check if environment variable specifies the location of a
+	// single cconfiguration file.
+	configFile := os.Getenv(flexConfigEnvFileLocation)
+	if len(configFile) > 0 {
+		readSingleConfigFile(vars, configFile, parameters.IniNamePrefix)
+		if len(vars) > 0 {
+			readFiles = false
+		}
+	}
+
+	// Check if a command line argument is used to specify the location
+	// of a single configuration file.
+	configFile = searchArgument(os.Args, flexconfigCommandlineFileLocation)
+	if len(configFile) > 0 {
+		if len(vars) > 0 {
+			vars = make(map[string]string)
+		}
+
+		readSingleConfigFile(vars, configFile, parameters.IniNamePrefix)
+		if len(vars) > 0 {
+			readFiles = false
+		}
+	}
 
 	// configuration files are the lowest priority
-	if len(parameters.ApplicationName) > 0 {
+	if readFiles && len(parameters.ApplicationName) > 0 {
 		readConfigFiles(vars,
 			parameters.ApplicationName,
 			parameters.AcceptedFileSuffixes,
@@ -285,6 +312,27 @@ func (fc *flexibleConfiguration) readConfig(
 	readCommandLineArgs(vars, os.Args)
 
 	return vars
+}
+
+// readSingleConfigFile reads properties set in a single configuration file.
+func readSingleConfigFile(
+	vars map[string]string,
+	configFile, iniNamePrefix string) {
+	// Break file name into path and name and read the file at
+	// that location.
+
+	path := ""
+	name := ""
+	index := strings.LastIndex(configFile, "/")
+	if index < 0 {
+		path = "."
+		name = configFile
+	} else {
+		path = configFile[:index]
+		name = configFile[index+1:]
+	}
+
+	readConfigFile(vars, path, name, iniNamePrefix)
 }
 
 // nameIsValid returns whether the specified application name or environment

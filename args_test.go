@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018 The flexconfig Authors
+Copyright 2018-2019 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -109,5 +109,32 @@ func Test_args_doubleMinusStops(t *testing.T) {
 
 	if v["test.config.one"] != "String Value" {
 		t.Errorf("Unexpected value for property: %s", v["test.config.one"])
+	}
+}
+
+func Test_searchArgs_emptyName(t *testing.T) {
+	args := []string{"abc", "xyz", "--foo=bar"}
+	argName := ""
+	val := searchArgument(args, argName)
+	if len(val) > 0 {
+		t.Errorf("Unexpected argument found")
+	}
+}
+
+func Test_searchArgs_emptyArgList(t *testing.T) {
+	args := []string{}
+	argName := "foo"
+	val := searchArgument(args, argName)
+	if len(val) > 0 {
+		t.Errorf("Unexpected argument found")
+	}
+}
+
+func Test_searchArgs_success(t *testing.T) {
+	args := []string{"abc", "xyz", "--foo=bar"}
+	argName := "foo"
+	val := searchArgument(args, argName)
+	if val != "bar" {
+		t.Errorf("Unexpected argument found")
 	}
 }

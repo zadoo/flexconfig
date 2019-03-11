@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The flexconfig Authors
+Copyright 2018-2019 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,13 +29,15 @@ separated by dots. For example,
 Initialization of a configuration is done by an application near the
 beginning of its main function by calling NewFlexibleConfiguration. The
 application can specify several parameters about how and where configuration
-properties will be obtained from. Configuration sources include (in priority order, lowest to highest):
+properties will be obtained from. Configuration sources include
+(in priority order, lowest to highest):
     - directories on the local file system
     - environment variables
     - command line arguments
     - configuration store
 
-The static configuration sources (not including configuration store) are read
+The static configuration sources (not including the configuration store)
+are read
 from lowest priority to highest priority, creating configuration properties
 from data found in the sources. If the same canonical property key is set in
 a data source read later, its value will override a value from a data source
@@ -48,6 +50,20 @@ under ConfigurationParameters. The subset of files read in these directories
 is controlled by AcceptedFileSuffixes, where the suffix ".conf" is used if
 none are specified. The contents of the files may have formats that include
 JSON, YAML, and INI.
+
+Even if the application has been compiled with a value for ApplicationName,
+it is possible to override the behavior of searching for configuration files
+and specify a single configuration
+file through the use of a special command line argument or a special
+environment variable. The command line argument
+_flexconfig.configuration.file.location_ specifies the file from which
+to read the static configuration and stops the search for files in the standard
+configuration locations. The environment variable
+_FLEXCONFIG_CONFIGURATION_FILE_LOCATION_ can be used instead to specifyy
+the location of the single configuration file. If both the command line
+argument and the
+environment variable are set, the value of the command line argument
+will be used.
 
 Hierarchical properties (multiple fields separated by dots) are defined by
 parsing JSON and YAML files. Arrays defined in these files result in
