@@ -1,0 +1,50 @@
+TODO
+----
+
+- When flexconfig initializes, read a well-known file (e.g. /etc/flexconfig.conf
+  to determine extended policy for the behavior of flexconfig.
+- Add many statements to the configuration of flexconfig passed to
+  NewConfiguration(). For instance:
+  - fc-read-global-config - false means application controls config
+                          - true means config can be configured
+  - fc-read-environment-variables
+  - fc-allow-multiple-calls-to-newconfig
+  - fc-read-commandline-arguments
+  - fc-allow-property-override
+  - fc-enable-property-set
+  - fc-enable-dynamic-config
+  - fc-live-dynamic-config - implies always going direct to dynamic source
+  - fc-dynamic-config-only-on-init
+  - fc-enable-ini
+  - fc-force-file-suffixes - .json, .ini, .yaml, .yml, etc. - need to configure
+
+- Add wiki page for "Why flexconfig"
+- Develop mission statement for flexconfig
+- Develop vision statement for flexconfig
+- Determine different org name for zadoo - zadoo.com is already taken
+- Perform pull-request from another github account for multiple authors
+- Change version to 2.0 when multiple policies are added
+- Make the default test not use etcd - force an env var to be defined to enable
+- Allow application more control over how fc works and finds data
+- Focus on secure configuration
+- Setup default configuration for flexconfig that is maximally secure
+- Enable config to be read-only after initial NewConfig
+- Make README.md more compelling
+- Consider support for TOML
+- Consider support for HCL
+- Consider optional re-reading of config files on a schedule
+- consider optional re-reading of env vars on a schedule
+- support Consul for dynamic vars
+- Consider supporting a schema to define all available properties
+  - error when accessing undefined property
+  - optional default values for defined properties
+- make it possible to discover source of a property (file, env var, commandline)
+- consider allowing separators to be defined (e.g. _, -, . in env, cli, api)
+- document precedence list and how overrides and merging works
+- support arrays as property values
+- Support reading config from stdin ???
+- support retriving config values defined using "flag" package
+- support encrypted config files
+- support encrypted config that requires app token to read
+- support config logging - may require fc-log configuration properties
+
