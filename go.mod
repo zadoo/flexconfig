@@ -1,4 +1,4 @@
-module github.com/zadoo/flexconfig
+module github.com/zadoo/flexconfig/v2
 
 go 1.13
 
