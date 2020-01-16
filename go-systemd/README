@@ -1,0 +1,4 @@
+This directory is a copy of github.com/coreos/go-systemd version v22.0.0. It was
+copied here either because it behaves badly as a module or because the packages
+including it behave badly as a module.
+

@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018-2019 The flexconfig Authors
+Copyright 2018-2020 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -241,18 +241,22 @@ func Test_config_onlyFiles(t *testing.T) {
 }
 
 func Test_config_priority(t *testing.T) {
-	fcs, err := NewFlexConfigStore(FlexConfigStoreEtcd, getEndpointList(), etcdTestPrefix)
-	if err != nil {
-		t.Errorf("Error creating store: %v", err)
-		return
-	}
+	var fcs FlexConfigStore
+	var err error
+	if runEtcdTests {
+		fcs, err = NewFlexConfigStore(FlexConfigStoreEtcd, getEndpointList(), etcdTestPrefix)
+		if err != nil {
+			t.Errorf("Error creating store: %v", err)
+			return
+		}
 
-	err = fcs.Set("test.conf.six", "fromStore")
-	if err != nil {
-		t.Errorf("Failed to set store property: %v", err)
-	}
+		err = fcs.Set("test.conf.six", "fromStore")
+		if err != nil {
+			t.Errorf("Failed to set store property: %v", err)
+		}
 
-	defer fcs.Delete("test.conf.six")
+		defer fcs.Delete("test.conf.six")
+	}
 
 	os.Setenv("TEST_CONF_TWO", "fromEnv")
 	os.Setenv("TEST_CONF_FIVE", "fromEnv")
@@ -277,9 +281,11 @@ func Test_config_priority(t *testing.T) {
 		t.Errorf("Command line vars did not override env vars: %s", val)
 	}
 
-	val = c.Get("test.conf.six")
-	if val != "fromStore" {
-		t.Errorf("Store var did not override command line var: %s", val)
+	if runEtcdTests {
+		val = c.Get("test.conf.six")
+		if val != "fromStore" {
+			t.Errorf("Store var did not override command line var: %s", val)
+		}
 	}
 
 	val = c.Get("test.conf.one")
@@ -315,7 +321,9 @@ func Test_config_priority(t *testing.T) {
 		t.Errorf("Failed to find existing property")
 	}
 
-	fcs.Delete("test.conf.seven")
+	if runEtcdTests {
+		fcs.Delete("test.conf.seven")
+	}
 }
 
 func Test_config_newBadParms(t *testing.T) {

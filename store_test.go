@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018 The flexconfig Authors
+Copyright 2018-2020 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,6 +24,10 @@ import (
 )
 
 func Test_flexConfigStoreNew(t *testing.T) {
+	if !runEtcdTests {
+		return
+	}
+
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint

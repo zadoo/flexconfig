@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018 The flexconfig Authors
+Copyright 2018-2020 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ const (
 	etcdEndpointEnvironmentVariable = "ETCDCTL_ENDPOINTS"
 	defaultEtcdEndpoint             = "http://127.0.0.1:2379"
 	etcdTestPrefix                  = "/test"
+	runEtcdTests                    = false
 )
 
 func getEndpointList() []string {
@@ -40,6 +41,10 @@ func getEndpointList() []string {
 }
 
 func Test_etcdStore_noEndpoints(t *testing.T) {
+	if !runEtcdTests {
+		return
+	}
+
 	_, err := newEtcdFlexConfigStore([]string{}, etcdTestPrefix)
 	if err == nil {
 		t.Errorf("Unexpected success when specifying no endpoints")
@@ -51,6 +56,10 @@ func Test_etcdStore_noEndpoints(t *testing.T) {
 }
 
 func Test_etcdStore_badEndpoints(t *testing.T) {
+	if !runEtcdTests {
+		return
+	}
+
 	_, err := newEtcdFlexConfigStore([]string{"1.2.3.4"}, etcdTestPrefix)
 	if err == nil {
 		t.Errorf("Unexpected success when specifying bad endpoint")
@@ -62,6 +71,10 @@ func Test_etcdStore_badEndpoints(t *testing.T) {
 }
 
 func Test_etcd(t *testing.T) {
+	if !runEtcdTests {
+		return
+	}
+
 	fcs, err := newEtcdFlexConfigStore(getEndpointList(), etcdTestPrefix)
 	if err != nil {
 		t.Errorf("Error creating store, have you defined ETCDCTL_ENDPOINTS?: %v", err)
@@ -92,6 +105,10 @@ func Test_etcd(t *testing.T) {
 }
 
 func Test_etcd_getAll(t *testing.T) {
+	if !runEtcdTests {
+		return
+	}
+
 	fcs, err := newEtcdFlexConfigStore(getEndpointList(), etcdTestPrefix)
 	if err != nil {
 		t.Errorf("Error creating store: %v", err)
@@ -152,6 +169,10 @@ func Test_etcd_getAll(t *testing.T) {
 }
 
 func Test_etcd_prefix(t *testing.T) {
+	if !runEtcdTests {
+		return
+	}
+
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint
@@ -172,6 +193,10 @@ func Test_etcd_prefix(t *testing.T) {
 }
 
 func Test_etcd_badNames(t *testing.T) {
+	if !runEtcdTests {
+		return
+	}
+
 	endpointstr := os.Getenv(etcdEndpointEnvironmentVariable)
 	if len(endpointstr) == 0 {
 		endpointstr = defaultEtcdEndpoint
