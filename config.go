@@ -42,6 +42,10 @@ var (
 	// ErrParmEnvPrefixNotValid indicates an environment prefix uses
 	// characters outside those accepted as property names.
 	ErrParmEnvPrefixNotValid = errors.New("Environment variable prefix not valid")
+
+	// ErrConfigAlreadyDefined indicates a policy violation where
+	// NewFlexibleConfiguration was called more than once.
+	ErrConfigAlreadyDefined = errors.New("NewFlexibleConfiguration called multiple times")
 )
 
 // Config is the interface used to interact with a FlexibleConfiguration and
@@ -65,6 +69,17 @@ type flexibleConfiguration struct {
 	appName string
 	store   FlexConfigStore
 	config  map[string]string
+	policy  ConfigurationPolicy
+}
+
+// ConfigurationPolicy specifies the policies by which flexconfig behaves. By
+// default all policy properties have a value of false. Policy descriptions
+// are written as if the property has been set to true.
+//
+// PreventConfigRedefinition indicates that it is not permissable to call
+// NewFlexibleConfiguration more than once in an application.
+type ConfigurationPolicy struct {
+	PreventConfigRedefinition bool
 }
 
 // ConfigurationParameters specifies how a Config should be initialized.
@@ -120,6 +135,8 @@ type flexibleConfiguration struct {
 // reading configuration files, environment variables, and command line
 // parameters.
 type ConfigurationParameters struct {
+	ConfigurationPolicy
+
 	ApplicationName             string
 	DirectoryList               []string
 	EnvironmentVariablePrefixes []string
@@ -156,6 +173,16 @@ func NewFlexibleConfiguration(
 	// Note: Creating a new FlexibleConfiguration will overwrite any
 	// existing global configuration.
 
+	if configuration != nil &&
+		configuration.policy.PreventConfigRedefinition {
+		return nil, ErrConfigAlreadyDefined
+	}
+
+	if configuration != nil &&
+		parameters.PreventConfigRedefinition {
+		return nil, ErrConfigAlreadyDefined
+	}
+
 	if !nameIsValid(parameters.ApplicationName) {
 		return nil, ErrParmNameNotValid
 	}
@@ -176,6 +203,7 @@ func NewFlexibleConfiguration(
 	configuration = new(flexibleConfiguration)
 	configuration.appName = parameters.ApplicationName
 	configuration.store = parameters.ConfigurationStore
+	configuration.policy = parameters.ConfigurationPolicy
 
 	// Read the static configuration
 	configuration.config = configuration.readConfig(parameters)

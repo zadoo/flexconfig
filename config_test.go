@@ -39,6 +39,7 @@ func Test_config_getBeforeInitialized(t *testing.T) {
 }
 
 func Test_config_topLevel(t *testing.T) {
+	configuration = nil
 	_, err := NewFlexibleConfiguration(ConfigurationParameters{})
 	if err != nil {
 		t.Errorf("Error calling NewFlexibleConfiguration")
@@ -66,7 +67,38 @@ func Test_config_topLevel(t *testing.T) {
 	}
 }
 
+func Test_config_moreThanOnce(t *testing.T) {
+	configuration = nil
+	parms := ConfigurationParameters{}
+	parms.PreventConfigRedefinition = true
+	_, err := NewFlexibleConfiguration(parms)
+	if err != nil {
+		t.Errorf("Error calling NewFlexibleConfiguration the first time")
+	}
+
+	_, err = NewFlexibleConfiguration(ConfigurationParameters{})
+	if err == nil {
+		t.Errorf("Error calling NewFlexibleConfiguration second time succeeded")
+	}
+}
+
+func Test_config_moreThanOnceOppositeOrder(t *testing.T) {
+	configuration = nil
+	_, err := NewFlexibleConfiguration(ConfigurationParameters{})
+	if err != nil {
+		t.Errorf("Error calling NewFlexibleConfiguration the first time")
+	}
+
+	parms := ConfigurationParameters{}
+	parms.PreventConfigRedefinition = true
+	_, err = NewFlexibleConfiguration(parms)
+	if err == nil {
+		t.Errorf("Error calling NewFlexibleConfiguration second time succeeded")
+	}
+}
+
 func Test_config_emptyDefault(t *testing.T) {
+	configuration = nil
 	os.Setenv("TEST_CONFIG_ENV", "singleWord")
 
 	cfg, err := NewFlexibleConfiguration(ConfigurationParameters{})
@@ -115,6 +147,7 @@ func Test_config_emptyDefault(t *testing.T) {
 }
 
 func Test_config_onlyEnv(t *testing.T) {
+	configuration = nil
 	os.Setenv("TEST_TEST_ENV", "singleWord")
 
 	cfg, err := NewFlexibleConfiguration(ConfigurationParameters{
@@ -183,6 +216,7 @@ func Test_config_onlyEnv(t *testing.T) {
 }
 
 func Test_config_onlyFiles(t *testing.T) {
+	configuration = nil
 	os.Setenv("TEST_CONFIG_ENV", "singleWord")
 
 	cfg, err := NewFlexibleConfiguration(ConfigurationParameters{
@@ -241,6 +275,7 @@ func Test_config_onlyFiles(t *testing.T) {
 }
 
 func Test_config_priority(t *testing.T) {
+	configuration = nil
 	var fcs FlexConfigStore
 	var err error
 	if runEtcdTests {
@@ -327,6 +362,7 @@ func Test_config_priority(t *testing.T) {
 }
 
 func Test_config_newBadParms(t *testing.T) {
+	configuration = nil
 	os.Args = []string{}
 	configuration = nil
 	_, err := NewFlexibleConfiguration(ConfigurationParameters{
@@ -403,6 +439,7 @@ func Test_config_newBadParms(t *testing.T) {
 }
 
 func Test_config_badPropertyNames(t *testing.T) {
+	configuration = nil
 	os.Args = []string{}
 	c, err := NewFlexibleConfiguration(ConfigurationParameters{})
 	if err != nil {
@@ -447,6 +484,7 @@ func Test_config_badPropertyNames(t *testing.T) {
 }
 
 func Test_config_newDifferentSuffix(t *testing.T) {
+	configuration = nil
 	os.Args = []string{}
 	cfg, err := NewFlexibleConfiguration(ConfigurationParameters{
 		ApplicationName:      "testConfig",
@@ -469,6 +507,7 @@ func Test_config_newDifferentSuffix(t *testing.T) {
 }
 
 func Test_readConfig_specialArg(t *testing.T) {
+	configuration = nil
 	os.Args = []string{"test", "--" + flexconfigCommandlineFileLocation + "=.testConfig/file.xyz"}
 	c, err := NewFlexibleConfiguration(ConfigurationParameters{
 		ApplicationName: "testConfig",
@@ -489,6 +528,7 @@ func Test_readConfig_specialArg(t *testing.T) {
 }
 
 func Test_readConfig_specialEnv(t *testing.T) {
+	configuration = nil
 	os.Setenv(flexConfigEnvFileLocation, ".testConfig/file.xyz")
 	c, err := NewFlexibleConfiguration(ConfigurationParameters{})
 	if err != nil {
@@ -502,6 +542,7 @@ func Test_readConfig_specialEnv(t *testing.T) {
 }
 
 func Test_readConfig_specialBoth(t *testing.T) {
+	configuration = nil
 	os.Setenv(flexConfigEnvFileLocation, ".testConfig/yaml.conf")
 	os.Args = []string{"test", "--" + flexconfigCommandlineFileLocation + "=.testConfig/file.xyz"}
 	c, err := NewFlexibleConfiguration(ConfigurationParameters{
