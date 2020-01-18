@@ -29,6 +29,10 @@ import (
 // Configuration files found at that directory are read, creating configuration
 // properties.
 func readConfigFiles(vars map[string]string, name string, suffixes []string, iniPrefix string) {
+	if len(name) == 0 {
+		return
+	}
+
 	dirlist := []string{
 		"/usr/local/etc/" + name,
 		"/opt/etc/" + name,
@@ -50,29 +54,6 @@ func readConfigFiles(vars map[string]string, name string, suffixes []string, ini
 	dirlist = append(dirlist, "."+name)
 
 	readConfigFilesFromDirectoryList(vars, dirlist, suffixes, iniPrefix)
-
-	/*
-		readFiles(vars, "/usr/local/etc/"+name, suffixes, iniPrefix)
-		readFiles(vars, "/opt/etc/"+name, suffixes, iniPrefix)
-		readFiles(vars, "/opt/"+name+"/etc", suffixes, iniPrefix)
-		readFiles(vars, "/etc/opt/"+name, suffixes, iniPrefix)
-		readFiles(vars, "/etc/"+name, suffixes, iniPrefix)
-
-		homedir := os.Getenv("HOME")
-		if len(homedir) > 0 {
-			dir := homedir
-			if !strings.HasSuffix(dir, "/") {
-				dir = dir + "/"
-			}
-
-			readFiles(vars, dir+"."+name, suffixes, iniPrefix)
-		}
-
-		// If the current working directory is the same as $HOME, this will
-		// read a set of config files a second time. There should be no change
-		// in the resulting configuration.
-		readFiles(vars, "."+name, suffixes, iniPrefix)
-	*/
 }
 
 // readConfigFilesFromDirectory reads configuration files from a list of

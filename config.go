@@ -24,7 +24,6 @@ import (
 )
 
 const (
-	defaultAppName                    = ""
 	defaultConfigurationSuffix        = ".conf"
 	flexconfigCommandlineFileLocation = "flexconfig.configuration.file.location"
 	flexConfigEnvFileLocation         = "FLEXCONFIG_CONFIGURATION_FILE_LOCATION"
@@ -114,6 +113,12 @@ type ConfigurationPolicy struct {
 // value, a directory list is used by default based on the value of
 // ApplicationName.
 //
+// SingleConfigFilePath indicates that only a single configuration file will
+// be read instead of the series of files in a series of directories, as is
+// done without specifying this property. When SingleConfigFilePath has a value,
+// the properties 'ApplicationName' and 'DirectoryList' are not used. The
+// default value for this property is "".
+//
 // EnvironmentVariablePrefixes is a list of prefixes used to determine
 // which environment variables should be added to the configuration. Environment
 // variable names have a canonical conversion to configuration property names:
@@ -141,6 +146,7 @@ type ConfigurationParameters struct {
 
 	ApplicationName             string
 	DirectoryList               []string
+	SingleConfigFilePath        string
 	EnvironmentVariablePrefixes []string
 	AcceptedFileSuffixes        []string
 	IniNamePrefix               string
@@ -159,6 +165,7 @@ var configuration *flexibleConfiguration
 // NewFlexibleConfiguration with an empty ConfigurationParameters structure.
 func getConfiguration() Config {
 	if configuration == nil {
+		// TODO: consider returning nil if NewFC has not been called
 		_, err := NewFlexibleConfiguration(ConfigurationParameters{})
 		if err != nil {
 			configuration = new(flexibleConfiguration)
@@ -173,7 +180,7 @@ func getConfiguration() Config {
 func NewFlexibleConfiguration(
 	parameters ConfigurationParameters) (Config, error) {
 	// Note: Creating a new FlexibleConfiguration will overwrite any
-	// existing global configuration.
+	// existing global configuration if policy does not prevent this.
 
 	if configuration != nil &&
 		configuration.policy.PreventConfigRedefinition {
@@ -185,32 +192,59 @@ func NewFlexibleConfiguration(
 		return nil, ErrConfigAlreadyDefined
 	}
 
-	if !nameIsValid(parameters.ApplicationName) {
+	parms := &parameters
+	establishConfigurationParameters(parms)
+
+	if !nameIsValid(parms.ApplicationName) {
 		return nil, ErrParmNameNotValid
 	}
 
 	// DirectoryList will be validated when the directories are opened.
 
-	for _, ep := range parameters.EnvironmentVariablePrefixes {
+	for _, ep := range parms.EnvironmentVariablePrefixes {
 		if !nameIsValid(ep) {
 			return nil, ErrParmEnvPrefixNotValid
 		}
 	}
 
-	if parameters.AcceptedFileSuffixes == nil ||
-		len(parameters.AcceptedFileSuffixes) == 0 {
-		parameters.AcceptedFileSuffixes = []string{defaultConfigurationSuffix}
+	if parms.AcceptedFileSuffixes == nil ||
+		len(parms.AcceptedFileSuffixes) == 0 {
+		parms.AcceptedFileSuffixes = []string{defaultConfigurationSuffix}
 	}
 
 	configuration = new(flexibleConfiguration)
-	configuration.appName = parameters.ApplicationName
-	configuration.store = parameters.ConfigurationStore
-	configuration.policy = parameters.ConfigurationPolicy
+	configuration.appName = parms.ApplicationName
+	configuration.store = parms.ConfigurationStore
+	configuration.policy = parms.ConfigurationPolicy
 
 	// Read the static configuration
-	configuration.config = configuration.readConfig(parameters)
+	configuration.config = configuration.readConfig(*parms)
 
 	return configuration, nil
+}
+
+// establishConfigurationParameters reads the multiple sources for configuring
+// flexconfig itself.
+func establishConfigurationParameters(parms *ConfigurationParameters) {
+	// TODO: make policy to not change what the application specified
+
+	// TODO: read /etc/flexconfig
+	// TODO: read environment variables
+	// TODO: read command line
+
+	// Check if environment variable specifies the location of a
+	// single cconfiguration file.
+	configFile := os.Getenv(flexConfigEnvFileLocation)
+	if len(configFile) > 0 {
+		parms.SingleConfigFilePath = configFile
+	}
+
+	// Check if a command line argument is used to specify the location
+	// of a single configuration file.
+	configFile = searchArgument(os.Args, flexconfigCommandlineFileLocation)
+	if len(configFile) > 0 {
+		parms.SingleConfigFilePath = configFile
+	}
 }
 
 // Exists returns whether the specified key is present in the global
@@ -323,24 +357,8 @@ func (fc *flexibleConfiguration) readConfig(
 	vars := make(map[string]string)
 	readFiles := true
 
-	// Check if environment variable specifies the location of a
-	// single cconfiguration file.
-	configFile := os.Getenv(flexConfigEnvFileLocation)
-	if len(configFile) > 0 {
-		readSingleConfigFile(vars, configFile, parameters.IniNamePrefix)
-		if len(vars) > 0 {
-			readFiles = false
-		}
-	}
-
-	// Check if a command line argument is used to specify the location
-	// of a single configuration file.
-	configFile = searchArgument(os.Args, flexconfigCommandlineFileLocation)
-	if len(configFile) > 0 {
-		if len(vars) > 0 {
-			vars = make(map[string]string)
-		}
-
+	if len(parameters.SingleConfigFilePath) > 0 {
+		configFile := parameters.SingleConfigFilePath
 		readSingleConfigFile(vars, configFile, parameters.IniNamePrefix)
 		if len(vars) > 0 {
 			readFiles = false
