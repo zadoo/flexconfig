@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018 The flexconfig Authors
+Copyright 2018-2020 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,11 +29,13 @@ import (
 // Configuration files found at that directory are read, creating configuration
 // properties.
 func readConfigFiles(vars map[string]string, name string, suffixes []string, iniPrefix string) {
-	readFiles(vars, "/usr/local/etc/"+name, suffixes, iniPrefix)
-	readFiles(vars, "/opt/etc/"+name, suffixes, iniPrefix)
-	readFiles(vars, "/opt/"+name+"/etc", suffixes, iniPrefix)
-	readFiles(vars, "/etc/opt/"+name, suffixes, iniPrefix)
-	readFiles(vars, "/etc/"+name, suffixes, iniPrefix)
+	dirlist := []string{
+		"/usr/local/etc/" + name,
+		"/opt/etc/" + name,
+		"/opt/" + name + "/etc",
+		"/etc/opt/" + name,
+		"/etc/" + name,
+	}
 
 	homedir := os.Getenv("HOME")
 	if len(homedir) > 0 {
@@ -42,13 +44,46 @@ func readConfigFiles(vars map[string]string, name string, suffixes []string, ini
 			dir = dir + "/"
 		}
 
-		readFiles(vars, dir+"."+name, suffixes, iniPrefix)
+		dirlist = append(dirlist, dir+"."+name)
 	}
 
-	// If the current working directory is the same as $HOME, this will
-	// read a set of config files a second time. There should be no change
-	// in the resulting configuration.
-	readFiles(vars, "."+name, suffixes, iniPrefix)
+	dirlist = append(dirlist, "."+name)
+
+	readConfigFilesFromDirectoryList(vars, dirlist, suffixes, iniPrefix)
+
+	/*
+		readFiles(vars, "/usr/local/etc/"+name, suffixes, iniPrefix)
+		readFiles(vars, "/opt/etc/"+name, suffixes, iniPrefix)
+		readFiles(vars, "/opt/"+name+"/etc", suffixes, iniPrefix)
+		readFiles(vars, "/etc/opt/"+name, suffixes, iniPrefix)
+		readFiles(vars, "/etc/"+name, suffixes, iniPrefix)
+
+		homedir := os.Getenv("HOME")
+		if len(homedir) > 0 {
+			dir := homedir
+			if !strings.HasSuffix(dir, "/") {
+				dir = dir + "/"
+			}
+
+			readFiles(vars, dir+"."+name, suffixes, iniPrefix)
+		}
+
+		// If the current working directory is the same as $HOME, this will
+		// read a set of config files a second time. There should be no change
+		// in the resulting configuration.
+		readFiles(vars, "."+name, suffixes, iniPrefix)
+	*/
+}
+
+// readConfigFilesFromDirectory reads configuration files from a list of
+// directories. Config files are read from directories in the order listed.
+func readConfigFilesFromDirectoryList(vars map[string]string, dirlist []string, suffixes []string, iniPrefix string) {
+	// TODO: consider how this function can be tested, perhaps by passing
+	//       a function to it to perform the work where for testing a
+	//       test function could be passed in.
+	for _, dir := range dirlist {
+		readFiles(vars, dir, suffixes, iniPrefix)
+	}
 }
 
 // readFiles checks for and reads configuration files in a single directory.

@@ -1,7 +1,7 @@
 package flexconfig
 
 /*
-Copyright 2018-2019 The flexconfig Authors
+Copyright 2018-2020 The flexconfig Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -70,18 +70,32 @@ type flexibleConfiguration struct {
 // ConfigurationParameters specifies how a Config should be initialized.
 //
 // ApplicationName specifies the name used to find directories that may
-// contain configuration files. If ApplicationName is empty (this is the
-// default), no search for configuration files is done. If ApplicationName
-// has a value, directories are searched in the following order, where
-// directories later in the list that define properties will override the
-// same property found in a directory listed earlier in the list:
+// contain configuration files. The use of ApplicationName implies that a
+// default set of directories will be searched for configuration properties.
+// If the property 'DirectoryList' is specified, the ApplicationName property
+// will not be used. By default, the value of ApplicationName is empty. If
+// neither ApplicationName not DirectoryList has a value (this is the default),
+// no search for configuration files is done. If ApplicationName
+// has a value and DirectoryList is empty, directories are searched in the
+// following order, where directories later in the list that define properties
+// will override the same property found in a directory listed earlier in the
+// list:
 //     /usr/local/etc/<name>
 //     /opt/etc/<name>
 //     /etc/opt/<name>
 //     /etc/<name>
 //     $HOME/.<name>
 //     ./.<name>
-// where <name> is the value of ApplicationName.
+// where <name> is the value of ApplicationName. All files having a suffix
+// specified in AcceptedFileSuffixes are searched for configuration properties.
+//
+// DirectoryList specifies the list of directories that will be searched for
+// configuration files. The directories are searched in the order given. By
+// default, all files with a suffix specified in AcceptedFileSuffixes are read
+// to find configuration properties. When DirectoryList has a value, the
+// property ApplicationName is not used. When DirectoryList does not have a
+// value, a directory list is used by default based on the value of
+// ApplicationName.
 //
 // EnvironmentVariablePrefixes is a list of prefixes used to determine
 // which environment variables should be added to the configuration. Environment
@@ -107,13 +121,18 @@ type flexibleConfiguration struct {
 // parameters.
 type ConfigurationParameters struct {
 	ApplicationName             string
+	DirectoryList               []string
 	EnvironmentVariablePrefixes []string
 	AcceptedFileSuffixes        []string
 	IniNamePrefix               string
 	ConfigurationStore          FlexConfigStore
 }
 
-// configuration is a singleton holding the current static configuration.
+// configuration is a singleton holding the global static configuration. It
+// is set when NewFlexibleConfiguration() is called. It is used when
+// GetConfiguration() is called. GetConfiguration() is called by the functions
+// Get(), Set(), and Exists(). GetConfiguration() is not called when the methods
+// Get(), Set(), and Exists() are called as methods of an interface.
 var configuration *flexibleConfiguration
 
 // GetConfiguration returns a previously initialized configuration. If there
@@ -141,6 +160,8 @@ func NewFlexibleConfiguration(
 		return nil, ErrParmNameNotValid
 	}
 
+	// DirectoryList will be validated when the directories are opened.
+
 	for _, ep := range parameters.EnvironmentVariablePrefixes {
 		if !nameIsValid(ep) {
 			return nil, ErrParmEnvPrefixNotValid
@@ -155,6 +176,8 @@ func NewFlexibleConfiguration(
 	configuration = new(flexibleConfiguration)
 	configuration.appName = parameters.ApplicationName
 	configuration.store = parameters.ConfigurationStore
+
+	// Read the static configuration
 	configuration.config = configuration.readConfig(parameters)
 
 	return configuration, nil
@@ -295,11 +318,18 @@ func (fc *flexibleConfiguration) readConfig(
 	}
 
 	// configuration files are the lowest priority
-	if readFiles && len(parameters.ApplicationName) > 0 {
-		readConfigFiles(vars,
-			parameters.ApplicationName,
-			parameters.AcceptedFileSuffixes,
-			parameters.IniNamePrefix)
+	if readFiles {
+		if len(parameters.DirectoryList) > 0 {
+			readConfigFilesFromDirectoryList(vars,
+				parameters.DirectoryList,
+				parameters.AcceptedFileSuffixes,
+				parameters.IniNamePrefix)
+		} else if len(parameters.ApplicationName) > 0 {
+			readConfigFiles(vars,
+				parameters.ApplicationName,
+				parameters.AcceptedFileSuffixes,
+				parameters.IniNamePrefix)
+		}
 	}
 
 	// environment variables override file property definitions
