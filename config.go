@@ -49,7 +49,9 @@ var (
 )
 
 // Config is the interface used to interact with a FlexibleConfiguration and
-// is returned by NewFlexibleConfiguration and GetConfiguration.
+// is returned by NewFlexibleConfiguration. Config is also kept as a global
+// configuration in case it is not convenient to pass the config to other
+// threads or functions.
 type Config interface {
 	// Exists returns whether the specified key has a non empty value in
 	// the configuration.
@@ -147,15 +149,15 @@ type ConfigurationParameters struct {
 
 // configuration is a singleton holding the global static configuration. It
 // is set when NewFlexibleConfiguration() is called. It is used when
-// GetConfiguration() is called. GetConfiguration() is called by the functions
-// Get(), Set(), and Exists(). GetConfiguration() is not called when the methods
+// getConfiguration() is called. getConfiguration() is called by the functions
+// Get(), Set(), and Exists(). getConfiguration() is not called when the methods
 // Get(), Set(), and Exists() are called as methods of an interface.
 var configuration *flexibleConfiguration
 
-// GetConfiguration returns a previously initialized configuration. If there
+// getConfiguration returns a previously initialized configuration. If there
 // is no existing configuration, a new configuration will be created by calling
 // NewFlexibleConfiguration with an empty ConfigurationParameters structure.
-func GetConfiguration() Config {
+func getConfiguration() Config {
 	if configuration == nil {
 		_, err := NewFlexibleConfiguration(ConfigurationParameters{})
 		if err != nil {
@@ -218,7 +220,7 @@ func NewFlexibleConfiguration(
 // configuration store or the store was not set, the key is retrieved from
 // the memory store created from files, environment variables, and arguments.
 func Exists(key string) bool {
-	cfg := GetConfiguration()
+	cfg := getConfiguration()
 	return cfg.Exists(key)
 }
 
@@ -255,7 +257,7 @@ func (fc *flexibleConfiguration) Exists(key string) bool {
 // retrieved from the memory store created from files, environment variables,
 // and arguments.
 func Get(key string) string {
-	cfg := GetConfiguration()
+	cfg := getConfiguration()
 	return cfg.Get(key)
 }
 
@@ -287,7 +289,7 @@ func (fc *flexibleConfiguration) Get(key string) string {
 // as well as the memory store. Otherwise, it will be stored only in the memory
 // store.
 func Set(key string, val string) {
-	cfg := GetConfiguration()
+	cfg := getConfiguration()
 	cfg.Set(key, val)
 }
 

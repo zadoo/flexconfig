@@ -23,7 +23,7 @@ import (
 )
 
 func Test_config_getBeforeInitialized(t *testing.T) {
-	c := GetConfiguration()
+	c := getConfiguration()
 	if c == nil {
 		t.Errorf("Uninitialized configuration should create empty configuration")
 		return
@@ -188,7 +188,7 @@ func Test_config_onlyEnv(t *testing.T) {
 		return
 	}
 
-	ccfg := GetConfiguration()
+	ccfg := getConfiguration()
 	cc := ccfg.(*flexibleConfiguration)
 	if len(cc.config) != 1 {
 		t.Errorf("Config size incorrect: %v", len(cc.config))
@@ -380,7 +380,7 @@ func Test_config_newBadParms(t *testing.T) {
 		t.Errorf("Unexpected configuration")
 	}
 
-	cfg := GetConfiguration()
+	cfg := getConfiguration()
 	if cfg == nil {
 		t.Errorf("Unexpected nil configuration")
 	}
